@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geschiedenis Quiz - Groep 7</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            color: white;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .quiz-card {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .question {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .options {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .option {
+            background: rgba(255, 255, 255, 0.8);
+            color: #333;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            border: none;
+            text-align: left;
+        }
+
+        .option:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .option.correct {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .option.incorrect {
+            background: #f44336;
+            color: white;
+        }
+
+        .feedback {
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .feedback.correct {
+            background: rgba(76, 175, 80, 0.3);
+            border: 2px solid #4CAF50;
+        }
+
+        .feedback.incorrect {
+            background: rgba(244, 67, 54, 0.3);
+            border: 2px solid #f44336;
+        }
+
+        .score {
+            text-align: center;
+            font-size: 1.5em;
+            margin: 20px 0;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .final-score {
+            text-align: center;
+            font-size: 2em;
+            background: rgba(255, 215, 0, 0.3);
+            border: 3px solid gold;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .next-btn {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 25px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            transition: transform 0.3s ease;
+        }
+
+        .next-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .emoji {
+            font-size: 2em;
+            margin: 0 10px;
+        }
+
+        @keyframes dance {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+
+        .dance {
+            animation: dance 1s ease-in-out 3;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out 3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏛️ Geschiedenis Quiz - Groep 7 🏛️</h1>
+        
+        <div class="score">
+            <span>Vraag <span id="currentQuestion">1</span> van 15</span> | 
+            <span>Score: <span id="score">0</span>/15</span>
+        </div>
+
+        <div id="quizContainer">
+            <!-- Quiz questions will be loaded here -->
+        </div>
+
+        <div id="finalScore" class="final-score hidden">
+            <h2>🎉 Quiz Voltooid! 🎉</h2>
+            <p>Je eindscore: <span id="finalScoreValue"></span>/15</p>
+            <p id="finalMessage"></p>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "In welk jaar begon de Eerste Wereldoorlog?",
+                options: ["1918", "1914", "1939", "1945"],
+                correct: 1
+            },
+            {
+                question: "Wie werd in 1933 leider van Duitsland?",
+                options: ["Napoleon", "Adolf Hitler", "Stalin", "Mussolini"],
+                correct: 1
+            },
+            {
+                question: "Wat gebeurde er in mei 1945?",
+                options: ["Hitler begon de oorlog", "Nederland werd bezet", "Nederland werd bevrijd", "Duitsland won de oorlog"],
+                correct: 2
+            },
+            {
+                question: "Wat was de Berlijnse Muur?",
+                options: ["Een muur in Amerika", "Een grens tussen Oost- en West-Berlijn", "Een muur bij de Sovjetunie", "Een muur in Frankrijk"],
+                correct: 1
+            },
+            {
+                question: "In welk jaar viel de Berlijnse Muur?",
+                options: ["1987", "1991", "1989", "1985"],
+                correct: 2
+            },
+            {
+                question: "Wie had invloed in Oost-Europa na de oorlog?",
+                options: ["Amerika", "Frankrijk", "Sovjetunie", "Duitsland"],
+                correct: 2
+            },
+            {
+                question: "Wat betekent EU?",
+                options: ["Europese Unie", "Europese Uitwisseling", "Europa en U", "Euro Unie"],
+                correct: 0
+            },
+            {
+                question: "In welk jaar werd de euro ingevoerd?",
+                options: ["2000", "2001", "2002", "2003"],
+                correct: 2
+            },
+            {
+                question: "Welke landen vormden de Benelux?",
+                options: ["Nederland, Duitsland, Frankrijk", "België, Luxemburg, Frankrijk", "Nederland, België, Luxemburg", "Nederland, België, Duitsland"],
+                correct: 2
+            },
+            {
+                question: "In welk jaar begon de Tweede Wereldoorlog?",
+                options: ["1938", "1939", "1940", "1941"],
+                correct: 1
+            },
+            {
+                question: "Wat gebeurde er in Nederland in 1940?",
+                options: ["Nederland werd bevrijd", "Nederland werd bezet door Duitsland", "Nederland won de oorlog", "Nederland sloot vrede"],
+                correct: 1
+            },
+            {
+                question: "Wat was de Koude Oorlog?",
+                options: ["Een oorlog in de winter", "Een periode van spanningen zonder directe oorlog", "Een oorlog met ijs", "Een oorlog in Rusland"],
+                correct: 1
+            },
+            {
+                question: "Tegen wie vochten de Geallieerden in de Eerste Wereldoorlog?",
+                options: ["De Russen", "De Centralen", "De Amerikanen", "De Fransen"],
+                correct: 1
+            },
+            {
+                question: "Wat was het IJzeren Gordijn?",
+                options: ["Een gordijn van ijzer", "De grens tussen Oost- en West-Europa", "Een muur in Berlijn", "Een wapen"],
+                correct: 1
+            },
+            {
+                question: "Waarom wilden Europese landen samenwerken na de Tweede Wereldoorlog?",
+                options: ["Om rijk te worden", "Om oorlog te voorkomen", "Om Amerika te verslaan", "Om groter te worden"],
+                correct: 1
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                showFinalScore();
+                return;
+            }
+
+            const question = questions[currentQuestionIndex];
+            const container = document.getElementById('quizContainer');
+            
+            container.innerHTML = `
+                <div class="quiz-card">
+                    <div class="question">${currentQuestionIndex + 1}. ${question.question}</div>
+                    <div class="options">
+                        ${question.options.map((option, index) => 
+                            `<button class="option" onclick="selectAnswer(${index})">${String.fromCharCode(65 + index)}. ${option}</button>`
+                        ).join('')}
+                    </div>
+                    <div id="feedback" class="feedback hidden"></div>
+                    <button id="nextBtn" class="next-btn hidden" onclick="nextQuestion()">Volgende Vraag</button>
+                </div>
+            `;
+            
+            answered = false;
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+        }
+
+        function selectAnswer(selectedIndex) {
+            if (answered) return;
+            
+            answered = true;
+            const question = questions[currentQuestionIndex];
+            const options = document.querySelectorAll('.option');
+            const feedback = document.getElementById('feedback');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            // Arrays met verschillende beloningen en straffen
+            const positiveRewards = [
+                "🍪 Je mag een lekker koekje pakken!",
+                "🙌 Geef iemand een high five!",
+                "🎵 Zing je favoriete liedje!",
+                "🤗 Geef jezelf een knuffel!",
+                "⭐ Teken een ster op je hand!",
+                "🎈 Doe alsof je een ballon opblaast!",
+                "📚 Kies je favoriete boek om straks te lezen!",
+                "🌟 Vertel iemand iets liefs!",
+                "🎪 Maak een grappig geluid!",
+                "🏆 Juich \"JOEHOE\" en steek je armen omhoog!",
+                "🍎 Pak een gezonde snack!",
+                "🎭 Maak een vrolijk gezicht in de spiegel!",
+                "🌈 Bedenk iets waar je blij van wordt!",
+                "🎁 Geef jezelf een compliment!",
+                "🦋 Doe alsof je een vlinder bent die rondvliegt!"
+            ];
+
+            const sportActivities = [
+                "💪 Doe 10 opdrukken!",
+                "🏃‍♂️ Ren 20 seconden op de plaats!",
+                "🤸‍♀️ Doe 15 jumping jacks!",
+                "🦵 Doe 12 squats!",
+                "🧘‍♂️ Houd een plank positie voor 15 seconden!",
+                "⭐ Doe 10 sterrensprongen!",
+                "🤸‍♂️ Spring 20 keer op één been!",
+                "💃 Doe 10 lunges (grote stappen)!",
+                "🏋️‍♂️ Doe alsof je 15 gewichten tilt!",
+                "🤾‍♂️ Spring 10 keer zo hoog als je kunt!",
+                "🚴‍♂️ Doe 20 seconden fietsbewegingen in de lucht!",
+                "🤸‍♀️ Doe 8 burpees!",
+                "🏃‍♀️ Doe high knees voor 15 seconden!",
+                "💪 Doe wandsit voor 20 seconden!",
+                "🤹‍♂️ Doe bergbeklimmers voor 15 seconden!"
+            ];
+            
+            options.forEach((option, index) => {
+                if (index === question.correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedIndex && index !== question.correct) {
+                    option.classList.add('incorrect');
+                }
+                option.style.pointerEvents = 'none';
+            });
+            
+            if (selectedIndex === question.correct) {
+                score++;
+                const randomReward = positiveRewards[Math.floor(Math.random() * positiveRewards.length)];
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = `
+                    <div class="dance">🎉 Goed gedaan! 🎉</div>
+                    <div>${randomReward}</div>
+                `;
+                document.getElementById('score').textContent = score;
+            } else {
+                const randomActivity = sportActivities[Math.floor(Math.random() * sportActivities.length)];
+                feedback.className = 'feedback incorrect shake';
+                feedback.innerHTML = `
+                    <div>❌ Helaas, dat was niet goed! ❌</div>
+                    <div>${randomActivity}</div>
+                    <div>Het goede antwoord was: ${String.fromCharCode(65 + question.correct)}. ${question.options[question.correct]}</div>
+                `;
+            }
+            
+            feedback.classList.remove('hidden');
+            nextBtn.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+
+        function showFinalScore() {
+            document.getElementById('quizContainer').classList.add('hidden');
+            const finalScore = document.getElementById('finalScore');
+            const finalScoreValue = document.getElementById('finalScoreValue');
+            const finalMessage = document.getElementById('finalMessage');
+            
+            finalScoreValue.textContent = score;
+            
+            let message = "";
+            if (score >= 13) {
+                message = "🏆 Fantastisch! Je bent een echte geschiedeniskenner! 🏆";
+            } else if (score >= 10) {
+                message = "👏 Heel goed gedaan! Je weet veel van geschiedenis! 👏";
+            } else if (score >= 7) {
+                message = "👍 Niet slecht! Blijf oefenen en je wordt nog beter! 👍";
+            } else {
+                message = "📚 Geen zorgen, blijf leren en probeer het nog eens! 📚";
+            }
+            
+            finalMessage.textContent = message;
+            finalScore.classList.remove('hidden');
+        }
+
+        // Start the quiz
+        loadQuestion();
+    </script>
+</body>
+</html>
